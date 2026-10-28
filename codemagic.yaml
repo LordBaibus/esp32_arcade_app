@@ -1,0 +1,65 @@
+# Codemagic workflow - The Bit Ballers companion app (iOS)
+#
+# FREE APPLE ACCOUNT: a free Apple ID cannot create the distribution
+# certificate / provisioning profile that Codemagic's automatic code signing
+# needs (that requires the paid Apple Developer Program and an App Store
+# Connect API key). So this workflow builds an UNSIGNED .ipa. You then sign it
+# with your own free Apple ID while installing it on your iPhone, using
+# Sideloadly (Windows/Mac) or AltStore / SideStore. The signature lasts 7 days;
+# re-install or "refresh" the app weekly.
+#
+# How to run it: in Codemagic, add this GitHub repo as an app, choose
+# "Flutter App" with codemagic.yaml, then Start new build -> workflow
+# "ios-sideload". When it finishes, download the .ipa from "Artifacts".
+#
+# Builds only start when you press the button, so they don't use up your free
+# build minutes. To build automatically on every push to main, add:
+#
+#   triggering:
+#     events:
+#       - push
+#     branch_patterns:
+#       - pattern: main
+#         include: true
+#         source: true
+
+workflows:
+  ios-sideload:
+    name: iOS - unsigned IPA (free Apple ID)
+    instance_type: mac_mini_m2
+    max_build_duration: 45
+    environment:
+      # Same Flutter version as on your PC. If Codemagic says it can't find it,
+      # change this to: stable
+      flutter: 3.44.4
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Get Flutter packages
+        script: flutter pub get
+
+      - name: Analyze (information only - never fails the build)
+        script: flutter analyze
+        ignore_failure: true
+
+      - name: Run tests (information only - never fails the build)
+        script: flutter test
+        ignore_failure: true
+
+      - name: Build iOS app without code signing
+        script: flutter build ios --release --no-codesign
+
+      - name: Package the unsigned .ipa
+        script: |
+          set -e
+          APP="build/ios/iphoneos/Runner.app"
+          test -d "$APP"
+          rm -rf build/ios/ipa
+          mkdir -p build/ios/ipa/Payload
+          cp -R "$APP" build/ios/ipa/Payload/
+          cd build/ios/ipa
+          zip -qry esp32_arcade_app_unsigned.ipa Payload
+          rm -rf Payload
+          ls -lh
+    artifacts:
+      - build/ios/ipa/*.ipa
