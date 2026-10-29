@@ -6,7 +6,7 @@ import 'common_widgets.dart';
 import 'esp32_service.dart';
 import 'providers.dart';
 
-/// Hardware tests and machine health: gate, buzzer and LED boards, hotspot
+/// Hardware tests and machine health: gate and buzzer, hotspot
 /// clients, free memory, uptime, plus reboot and high-score reset.
 class MaintenanceScreen extends ConsumerStatefulWidget {
   const MaintenanceScreen({super.key});
@@ -117,7 +117,7 @@ class _MaintenanceScreenState extends ConsumerState<MaintenanceScreen> {
         const SizedBox(height: 12),
         SectionCard(
           title: 'Hardware tests',
-          caption: 'Try each part without starting a game.',
+          caption: 'Try the gate and buzzer without starting a game.',
           children: [
             const Text('Gate servo', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
             const SizedBox(height: 8),
@@ -142,7 +142,7 @@ class _MaintenanceScreenState extends ConsumerState<MaintenanceScreen> {
               ],
             ),
             const SizedBox(height: 16),
-            const Text('Buzzer and LED boards', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+            const Text('Buzzer', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
             const SizedBox(height: 8),
             Wrap(
               spacing: 10,
@@ -150,31 +150,12 @@ class _MaintenanceScreenState extends ConsumerState<MaintenanceScreen> {
               children: [
                 GlassAction(
                   icon: CupertinoIcons.speaker_2_fill,
-                  label: 'Buzzer',
+                  label: 'Beep',
                   enabled: online,
                   busy: _busy == 'beep',
                   onTap: () => _run('beep', (service) => service.beep()),
                 ),
-                GlassAction(
-                  icon: CupertinoIcons.lightbulb_fill,
-                  label: 'Light all LEDs',
-                  enabled: enabled,
-                  busy: _busy == 'display-test',
-                  onTap: () => _run('display-test', (service) => service.testDisplays()),
-                ),
-                GlassAction(
-                  icon: CupertinoIcons.arrow_2_circlepath,
-                  label: 'Reset displays',
-                  enabled: online,
-                  busy: _busy == 'display-reset',
-                  onTap: () => _run('display-reset', (service) => service.resetDisplays()),
-                ),
               ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '"Light all LEDs" turns every LED on the three boards on for 2 seconds - a dead or dim segment shows up straight away.',
-              style: captionStyle(context),
             ),
           ],
         ),

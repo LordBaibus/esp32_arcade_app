@@ -503,15 +503,6 @@ class Esp32Service {
     await _post('/api/beep');
   }
 
-  Future<void> resetDisplays() async {
-    await _post('/api/display/reset');
-  }
-
-  /// Lights every LED on all three boards for about 2 seconds.
-  Future<void> testDisplays() async {
-    await _post('/api/display/test');
-  }
-
   Future<void> resetStats() async {
     await _post('/api/stats/reset');
   }
